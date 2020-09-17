@@ -3,6 +3,11 @@ import { Box } from "rebass/styled-components";
 import { useDrop } from "react-dnd";
 import { DRAG_TYPES } from "../constants/DragTypes";
 import { useComponents } from "../contexts/ComponentsContext";
+import ComponentName from "../components/ComponentName";
+
+const PreviewComponents = {
+  ComponentName,
+};
 
 export default function Preview() {
   const { components, setComponents } = useComponents();
@@ -28,9 +33,15 @@ export default function Preview() {
 
   const componentPreview =
     components.length > 0 &&
-    components.map((component, index) => (
-      <div key={component + index}>{component.name}</div>
-    ));
+    components.map((component, index) => {
+      if (typeof PreviewComponents[component.name] !== "undefined") {
+        return React.createElement(PreviewComponents[component.name], {
+          // @TODO: Use a hash here?
+          key: index,
+          ...component.props,
+        });
+      }
+    });
   return (
     <Box
       ref={drop}
