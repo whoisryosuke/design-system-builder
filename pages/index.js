@@ -14,7 +14,10 @@ export default function Home() {
 
       <ComponentsProvider>
         <main className={styles.main}>
-          <DraggableComponent />
+          <div>
+            <DraggableComponent />
+            <DraggableComponent bg="red" />
+          </div>
           <Preview />
         </main>
       </ComponentsProvider>
