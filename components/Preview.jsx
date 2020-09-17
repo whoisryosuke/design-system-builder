@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Box } from "rebass/styled-components";
 import { useDrop } from "react-dnd";
 import { DRAG_TYPES } from "../constants/DragTypes";
@@ -11,6 +11,7 @@ const PreviewComponents = {
 };
 
 export default function Preview() {
+  const [focused, setFocused] = useState(null);
   const { components, setComponents } = useComponents();
   const [{ isOver, isOverCurrent }, drop] = useDrop({
     accept: DRAG_TYPES.COMPONENT,
@@ -32,6 +33,14 @@ export default function Preview() {
     }),
   });
 
+  const clickHandler = useCallback(
+    (index) => {
+      if (focused === index) setFocused(null);
+      setFocused(index);
+    },
+    [focused, setFocused]
+  );
+
   const componentPreview =
     components.length > 0 &&
     components.map((component, index) => {
@@ -47,8 +56,9 @@ export default function Preview() {
         return React.createElement(
           PreviewContainer,
           {
-            // @TODO: Use a hash here?
-            key: index,
+            index,
+            onClick: clickHandler,
+            focused: focused === index ? true : false,
           },
           [NewComponent]
         );
