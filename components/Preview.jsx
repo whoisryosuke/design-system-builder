@@ -3,12 +3,7 @@ import { Box } from "rebass/styled-components";
 import { useDrop } from "react-dnd";
 import { DRAG_TYPES } from "../constants/DragTypes";
 import { useComponents } from "../contexts/ComponentsContext";
-import ComponentName from "../components/ComponentName";
-import PreviewContainer from "./PreviewContainer";
-
-const PreviewComponents = {
-  ComponentName,
-};
+import PreviewComponent from "./PreviewComponent";
 
 export default function Preview() {
   const [focused, setFocused] = useState(null);
@@ -20,15 +15,16 @@ export default function Preview() {
       if (didDrop) {
         return;
       }
-      console.log("item dropped!", item);
+      console.log("item dropped on preview!", item, didDrop);
       const componentStructure = {
         name: item.id,
         props: {},
+        children: [],
       };
       setComponents((prevValue) => [...prevValue, componentStructure]);
     },
     collect: (monitor) => ({
-      isOver: monitor.isOver(),
+      isOver: monitor.isOver({ shallow: true }),
       isOverCurrent: monitor.isOver({ shallow: true }),
     }),
   });
@@ -41,29 +37,17 @@ export default function Preview() {
     [focused, setFocused]
   );
 
+  console.log("the components", components);
   const componentPreview =
     components.length > 0 &&
-    components.map((component, index) => {
-      if (typeof PreviewComponents[component.name] !== "undefined") {
-        const NewComponent = React.createElement(
-          PreviewComponents[component.name],
-          {
-            // @TODO: Use a hash here?
-            key: index,
-            ...component.props,
-          }
-        );
-        return React.createElement(
-          PreviewContainer,
-          {
-            index,
-            onClick: clickHandler,
-            focused: focused === index ? true : false,
-          },
-          [NewComponent]
-        );
-      }
-    });
+    components.map((component, index) => (
+      <PreviewComponent
+        index={index}
+        component={component}
+        clickHandler={clickHandler}
+        focused={focused}
+      />
+    ));
   return (
     <Box
       ref={drop}
